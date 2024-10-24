@@ -3,6 +3,9 @@ package com.ac2.demo.controller;
 import com.ac2.demo.dto.FuncionarioDTO;
 import com.ac2.demo.dto.ProjetoDTO;
 import com.ac2.demo.service.FuncionarioService;
+
+import jakarta.transaction.Transactional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,6 +19,7 @@ public class FuncionarioController {
     @Autowired
     private FuncionarioService funcionarioService;
 
+    @Transactional
     @PostMapping("/cadastrar")
     public ResponseEntity<Void> adicionar(@RequestBody FuncionarioDTO funcionario) {
         funcionarioService.adicionarFuncionario(funcionario);

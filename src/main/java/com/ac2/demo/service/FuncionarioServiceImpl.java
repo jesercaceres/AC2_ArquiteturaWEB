@@ -7,6 +7,8 @@ import com.ac2.demo.model.ProjetoModel;
 import com.ac2.demo.model.SetorModel;
 import com.ac2.demo.repositories.SetorRepository;
 import com.ac2.demo.repositories.FuncionarioRepository;
+import com.ac2.demo.repositories.ProjetoRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -20,7 +22,10 @@ public class FuncionarioServiceImpl implements FuncionarioService {
     private FuncionarioRepository funcionarioRepository;
 
     @Autowired
-    private SetorRepository setorRepository; // Adicione esta linha
+    private SetorRepository setorRepository; 
+
+    @Autowired
+    private ProjetoRepository projetoRepository;
 
     @Override
     public List<ProjetoDTO> getProjetosByFuncionarioId(Integer id) {
@@ -32,9 +37,22 @@ public class FuncionarioServiceImpl implements FuncionarioService {
     public void adicionarFuncionario(FuncionarioDTO funcionarioDTO) {
         FuncionarioModel funcionario = new FuncionarioModel();
         funcionario.setNome(funcionarioDTO.getNome());
+
         SetorModel setor = setorRepository.findById(funcionarioDTO.getSetorId())
                 .orElseThrow(() -> new RuntimeException("Setor não encontrado"));
         funcionario.setSetor(setor);
+
+        // Verificar se todos os IDs de projetos existem
+        List<Integer> projetoIds = funcionarioDTO.getProjetoIds();
+        if (projetoIds != null && !projetoIds.isEmpty()) {
+            long count = projetoRepository.countByIdIn(projetoIds);
+            if (count != projetoIds.size()) {
+                throw new RuntimeException("Um ou mais IDs de projetos são inválidos.");
+            }
+            List<ProjetoModel> projetos = projetoRepository.findAllById(projetoIds);
+            funcionario.setProjetos(projetos);
+        }
+
         funcionarioRepository.save(funcionario);
     }
 

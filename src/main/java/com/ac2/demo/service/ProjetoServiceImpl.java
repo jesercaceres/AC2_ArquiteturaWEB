@@ -59,11 +59,11 @@ public class ProjetoServiceImpl implements ProjetoService {
 
     private ProjetoDTO convertToDTO(ProjetoModel projeto) {
         return new ProjetoDTO(
-                projeto.getId(),
-                projeto.getDescricao(),
-                projeto.getDataInicio(),
-                projeto.getDataFim(),
-                projeto.getFuncionarios().stream().map(FuncionarioModel::getId).collect(Collectors.toList())
+            projeto.getId(),  // Certifique-se de que o ID do projeto está sendo passado aqui
+            projeto.getDescricao(),
+            projeto.getDataInicio(),
+            projeto.getDataFim(),
+            projeto.getFuncionarios().stream().map(FuncionarioModel::getId).collect(Collectors.toList())
         );
     }
 }

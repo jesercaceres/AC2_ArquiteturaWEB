@@ -15,4 +15,6 @@ public interface ProjetoRepository extends JpaRepository<ProjetoModel, Integer> 
 
     @Query("SELECT p FROM ProjetoModel p WHERE p.dataInicio BETWEEN :startDate AND :endDate")
     List<ProjetoModel> findProjetosByDataInicioBetween(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
+
+    long countByIdIn(List<Integer> ids);
 }
