@@ -12,4 +12,6 @@ public interface FuncionarioRepository extends JpaRepository<FuncionarioModel, I
 
     @Query("SELECT f.projetos FROM FuncionarioModel f WHERE f.id = :id")
     List<ProjetoModel> findProjetosByFuncionarioId(@Param("id") Integer id);
+
+    long countByIdIn(List<Integer> ids);
 }

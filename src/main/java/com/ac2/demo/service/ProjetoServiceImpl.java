@@ -1,7 +1,9 @@
 package com.ac2.demo.service;
 
 import com.ac2.demo.dto.ProjetoDTO;
+import com.ac2.demo.model.FuncionarioModel;
 import com.ac2.demo.model.ProjetoModel;
+import com.ac2.demo.repositories.FuncionarioRepository;
 import com.ac2.demo.repositories.ProjetoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,6 +17,9 @@ public class ProjetoServiceImpl implements ProjetoService {
     @Autowired
     private ProjetoRepository projetoRepository;
 
+    @Autowired
+    private FuncionarioRepository funcionarioRepository;
+
     @Override
     public ProjetoDTO getProjetoWithFuncionarios(Integer id) {
         ProjetoModel projeto = projetoRepository.findProjetoWithFuncionarios(id);
@@ -27,8 +32,38 @@ public class ProjetoServiceImpl implements ProjetoService {
         return projetos.stream().map(this::convertToDTO).collect(Collectors.toList());
     }
 
+    @Override
+    public void adicionarProjeto(ProjetoDTO projetoDTO) {
+        // Verificar se todos os IDs de funcionários existem
+        List<Integer> funcionarioIds = projetoDTO.getFuncionarioIds();
+        if (funcionarioIds != null && !funcionarioIds.isEmpty()) {
+            long count = funcionarioRepository.countByIdIn(funcionarioIds);
+            if (count != funcionarioIds.size()) {
+                throw new RuntimeException("Um ou mais IDs de funcionários são inválidos.");
+            }
+        }
+
+        ProjetoModel projeto = new ProjetoModel();
+        projeto.setDescricao(projetoDTO.getDescricao());
+        projeto.setDataInicio(projetoDTO.getDataInicio());
+        projeto.setDataFim(projetoDTO.getDataFim());
+
+        // Associar funcionários ao projeto
+        if (funcionarioIds != null && !funcionarioIds.isEmpty()) {
+            List<FuncionarioModel> funcionarios = funcionarioRepository.findAllById(funcionarioIds);
+            projeto.setFuncionarios(funcionarios);
+        }
+
+        projetoRepository.save(projeto);
+    }
+
     private ProjetoDTO convertToDTO(ProjetoModel projeto) {
-        // Implementar a conversão de ProjetoModel para ProjetoDTO
-        return new ProjetoDTO();
+        return new ProjetoDTO(
+                projeto.getId(),
+                projeto.getDescricao(),
+                projeto.getDataInicio(),
+                projeto.getDataFim(),
+                projeto.getFuncionarios().stream().map(FuncionarioModel::getId).collect(Collectors.toList())
+        );
     }
 }
